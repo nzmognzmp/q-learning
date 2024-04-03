@@ -5,17 +5,20 @@ name = "q-learning"
 version = "0.1.0"
 
 [tool.poetry.dependencies]
-gym = "^0.18.3"
-python = "^3.8"
-tensorflow = "^2.5.0"
+gymnasium = "^0.29"
+numpy = "^1"
+python = "^3.10"
 
 [tool.poetry.group.dev.dependencies]
-black = "^21.5b1"
-flake8 = "^3.9.2"
-flake8-import-order = "^0.18.1"
-mypy = "^0.812"
-pylint = "^2.8.2"
-pytest = "^6.2.4"
+black = "^24"
+flake8 = "^7"
+isort = "^5"
+mypy = "^1"
+pylint = "^3"
+pytest = "^8"
+
+[tool.isort]
+profile = "black"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

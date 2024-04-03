@@ -1,7 +1,7 @@
 from io import StringIO
 from random import choice as random_choice
 from random import random
-from typing import Any, Generic, Hashable, Sequence, Tuple, TypeVar
+from typing import Any, Generic, Hashable, Sequence, TypeVar
 
 from numpy import float32, linspace, zeros
 
@@ -10,10 +10,10 @@ ActionT = TypeVar("ActionT", bound=Hashable)
 
 
 class BaseEnvironment(Generic[StateT, ActionT]):
-    def step(self, action: ActionT) -> Tuple[StateT, float, bool, Any]:
+    def step(self, action: ActionT) -> tuple[StateT, float, bool, bool, dict[Any, Any]]:
         raise NotImplementedError()
 
-    def reset(self) -> StateT:
+    def reset(self) -> tuple[StateT, dict[str, Any]]:
         raise NotImplementedError()
 
 
@@ -71,7 +71,7 @@ class QLearner(Generic[StateT, ActionT]):
         return a
 
     def episode(self) -> float:
-        s = self.environment.reset()
+        s, _ = self.environment.reset()
         total_r = 0.0
         done = False
         while not done:
@@ -81,7 +81,7 @@ class QLearner(Generic[StateT, ActionT]):
             else:
                 # Exploration
                 a = random_choice(self.actions)
-            new_s, r, done, _ = self.environment.step(a)
+            new_s, r, done, _, _ = self.environment.step(a)
             total_r += r
             self.bellman_update(s, a, r, new_s)
             s = new_s

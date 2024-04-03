@@ -1,12 +1,12 @@
 from itertools import product
-from typing import Any, Tuple
+from typing import Any, cast
 
-import gym
+import gymnasium as gym
 
 from q_learning import BaseEnvironment, QLearner
 
 
-class Environment(BaseEnvironment):
+class Environment(BaseEnvironment[tuple[int, int], str]):
     def __init__(self) -> None:
         self.allowed = frozenset(
             {
@@ -27,11 +27,13 @@ class Environment(BaseEnvironment):
             }
         )
 
-    def reset(self) -> Tuple[int, int]:
+    def reset(self) -> tuple[tuple[int, int], dict[str, Any]]:
         self.current_state = (2, 0)
-        return self.current_state
+        return self.current_state, {}
 
-    def step(self, action: str) -> Tuple[Tuple[int, int], float, bool, Any]:
+    def step(
+        self, action: str
+    ) -> tuple[tuple[int, int], float, bool, bool, dict[Any, Any]]:
         r, c = self.current_state
         if action == "↑":
             r -= 1
@@ -45,12 +47,12 @@ class Environment(BaseEnvironment):
             raise ValueError("Invalid action")
         if 0 <= r < 5 and 1 <= c < 6 and (r, c) in self.allowed:
             self.current_state = (r, c)
-            return (r, c), -1, False, None
+            return (r, c), -1.0, False, False, {}
         elif (r, c) == (2, 6):
             self.current_state = (r, c)
-            return (r, c), -1, True, None
+            return (r, c), -1.0, True, False, {}
         else:
-            return self.current_state, -1, False, None
+            return self.current_state, -1.0, False, False, {}
 
 
 def test_qlearn() -> None:
@@ -59,7 +61,7 @@ def test_qlearn() -> None:
 
     environment = Environment()
 
-    q_learner: QLearner[Tuple[int, int], str] = QLearner(
+    q_learner: QLearner[tuple[int, int], str] = QLearner(
         actions=actions, states=states, environment=environment, n_iter=1000
     )
     final_reward = q_learner.learn()
@@ -68,7 +70,7 @@ def test_qlearn() -> None:
 
 
 def test_frozen() -> None:
-    env = gym.make("FrozenLake-v0")
+    env = cast(BaseEnvironment[int, int], gym.make("FrozenLake-v1"))
     q_learner = QLearner(
         actions=[0, 1, 2, 3], states=list(range(16)), environment=env, n_iter=10000
     )
